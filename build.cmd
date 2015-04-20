@@ -1,6 +1,8 @@
-.paket\paket.bootstrapper.exe
-if errorlevel 1 (
-  exit "There was an error with paket.bootstrapper"
+IF NOT EXIST .paket\paket.exe (
+    .paket\paket.bootstrapper.exe
+    if errorlevel 1 (
+      exit "There was an error with paket.bootstrapper"
+    )
 )
 
 IF EXIST paket.lock (
