@@ -16,7 +16,7 @@ let docDir = "./docs/"
 
 // Filesets Properties
 let appReferences = !! "src/app/**/*.csproj"
-let testReferences = !! "src/test/**/*.csproj"
+let testReferences = !! "src/tests/**/*.csproj"
 
 // Project Properties
 
@@ -40,7 +40,7 @@ Target "BuildTest" (fun _ ->
 )
 
 Target "Test" (fun _ ->
-        !! (testDir + "/NUnit.Test.*.dll")
+        !! (testDir + "*Tests*.dll")
             |> NUnit (fun p ->
                 {
                     p with

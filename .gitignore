@@ -35,6 +35,7 @@ build/
 *.pgc
 *.pgd
 *.rsp
+*.dll
 *.sbr
 *.tlb
 *.tli
@@ -165,7 +166,7 @@ $RECYCLE.BIN/
 packages/
 
 # Test results produced by build
-TestResults.xml
+tests/
 
 # Nuget outputs
 nuget/*.nupkg
