@@ -166,7 +166,7 @@ $RECYCLE.BIN/
 packages/
 
 # Test results produced by build
-tests/
+tests/*
 
 # Nuget outputs
 nuget/*.nupkg
