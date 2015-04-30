@@ -2,4 +2,24 @@ NUGET
   remote: D:\SOFT\Development\VS\NuGet_Repository
   specs:
     FAKE (3.28.5)
+    Microsoft.AspNet.Mvc (4.0.20710.0) - framework: >= net40
+      Microsoft.AspNet.Razor (>= 2.0.20710.0 < 2.1)
+      Microsoft.AspNet.WebPages (>= 2.0.20710.0 < 2.1)
+    Microsoft.AspNet.Razor (2.0.20710.0) - framework: >= net40
+    Microsoft.AspNet.WebApi (4.0.20710.0) - framework: >= net40
+      Microsoft.AspNet.WebApi.WebHost (>= 4.0.20710.0 < 4.1)
+    Microsoft.AspNet.WebApi.Client (4.0.20710.0) - framework: >= net40
+      Microsoft.Net.Http (>= 2.0.20710.0 < 2.1)
+      Newtonsoft.Json (>= 4.5.6)
+    Microsoft.AspNet.WebApi.Core (4.0.20710.0) - framework: >= net40
+      Microsoft.AspNet.WebApi.Client (>= 4.0.20710.0 < 4.1)
+    Microsoft.AspNet.WebApi.WebHost (4.0.20710.0) - framework: >= net40
+      Microsoft.AspNet.WebApi.Core (>= 4.0.20710.0 < 4.1)
+      Microsoft.Web.Infrastructure (>= 1.0.0.0)
+    Microsoft.AspNet.WebPages (2.0.20710.0) - framework: >= net40
+      Microsoft.AspNet.Razor (>= 2.0.20710.0 < 2.1)
+      Microsoft.Web.Infrastructure (>= 1.0.0.0)
+    Microsoft.Net.Http (2.0.20710.0) - framework: >= net40
+    Microsoft.Web.Infrastructure (1.0.0.0) - framework: >= net40
+    Newtonsoft.Json (4.5.6) - framework: >= net40
     NUnit (2.6.4)
