@@ -1,6 +1,9 @@
 NUGET
   remote: D:\SOFT\Development\VS\NuGet_Repository
   specs:
+    Antlr4 (4.3.0)
+      Antlr4.Runtime (>= 4.3.0)
+    Antlr4.Runtime (4.3.0)
     FAKE (3.28.5)
     Microsoft.AspNet.Mvc (4.0.20710.0) - framework: >= net40
       Microsoft.AspNet.Razor (>= 2.0.20710.0 < 2.1)
@@ -21,5 +24,8 @@ NUGET
       Microsoft.Web.Infrastructure (>= 1.0.0.0)
     Microsoft.Net.Http (2.0.20710.0) - framework: >= net40
     Microsoft.Web.Infrastructure (1.0.0.0) - framework: >= net40
+    NetConsole.Core (0.2.2)
+      Antlr4
     Newtonsoft.Json (4.5.6) - framework: >= net40
+    Ninject (3.2.2.0)
     NUnit (2.6.4)

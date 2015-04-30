@@ -1,2 +1,4 @@
 Microsoft.AspNet.Mvc
 Microsoft.AspNet.WebApi
+Ninject
+NetConsole.Core

@@ -14,9 +14,13 @@ namespace NetConsole.WebApi
     {
         protected void Application_Start()
         {
-            AreaRegistration.RegisterAllAreas();
+            var config = GlobalConfiguration.Configuration;
+            config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling =
+                Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 
-            WebApiConfig.Register(GlobalConfiguration.Configuration);
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
+
+            WebApiConfig.Register(config);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
         }
     }
