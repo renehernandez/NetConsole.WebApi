@@ -1,1 +1,6 @@
 NetConsole.Core
+NUnit
+NUnit.Runners
+NUnitTestAdapter
+RhinoMocks
+Microsoft.AspNet.WebApi

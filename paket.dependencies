@@ -4,5 +4,8 @@ nuget Microsoft.AspNet.Mvc 4.0.20710.0 framework: >= net40
 nuget Microsoft.AspNet.WebApi 4.0.20710.0 framework: >= net40
 nuget NUnit ~> 2.6.4
 nuget FAKE ~> 3.28.5
+nuget NUnit.Runners
+nuget NUnitTestAdapter
 nuget NetConsole.Core
 nuget Ninject
+nuget RhinoMocks
