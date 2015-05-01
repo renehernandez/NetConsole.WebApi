@@ -4,41 +4,68 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using NetConsole.Core.Grammar;
 using NetConsole.Core.Interfaces;
+using NetConsole.WebApi.Interfaces;
+using NetConsole.WebApi.Metadata;
 
 namespace NetConsole.WebApi.Controllers
 {
     public class CommandsController : ApiController
     {
 
-        private readonly ICommandManager _manager;
+        private readonly IRepository<ICommand, ICommandMetadata<ActionMeta>, ReturnInfo> _repository;
 
-        public CommandsController(ICommandManager manager)
+        public CommandsController(IRepository<ICommand, ICommandMetadata<ActionMeta>, ReturnInfo> repository)
         {
-            _manager = manager;
+            _repository = repository;
         }
 
-        public HttpResponseMessage GetAllCommands()
+        [HttpGet]
+        [ActionName("Rest")]
+        public HttpResponseMessage Get()
         {
-            var commands = _manager.Factory.GetAll();
+            var commands = _repository.GetAll();
 
             var response = Request.CreateResponse(HttpStatusCode.OK, commands);
             return response;
         }
 
-        public HttpResponseMessage GetCommmand(string cmdName)
+        [HttpGet]
+        [ActionName("Rest")]
+        public HttpResponseMessage Get(string cmdName)
         {
-            if (!_manager.Factory.Contains(cmdName))
+            if (!_repository.Contains(cmdName))
                 throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound));
 
-            var command = _manager.Factory.GetInstance(cmdName);
+            var command = _repository.GetInstance(cmdName);
             var response = Request.CreateResponse(HttpStatusCode.OK, command);
             return response;
         }
 
-        public HttpResponseMessage PostAction([FromBody] string commandAction)
+        [HttpGet]
+        [ActionName("Meta")]
+        public HttpResponseMessage Meta()
         {
-            var output = _manager.GetOutputFromString(commandAction);
+            var meta = _repository.GetAllMetadata();
+
+            var response = Request.CreateResponse(HttpStatusCode.OK, meta);
+            return response;
+        }
+
+        [HttpGet]
+        public HttpResponseMessage Meta(string cmdName)
+        {
+            var meta = _repository.GetInstanceMetadata(cmdName);
+
+            var response = Request.CreateResponse(HttpStatusCode.OK, meta);
+            return response;
+        }
+
+        [HttpPost]
+        public HttpResponseMessage Perform([FromBody] string commandAction)
+        {
+            var output = _repository.Perform(commandAction, false);
 
             var response = Request.CreateResponse(HttpStatusCode.OK, output);
             return response;

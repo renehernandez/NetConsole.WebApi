@@ -18,9 +18,15 @@ namespace NetConsole.WebApi
             config.DependencyResolver = ninjectResolver;
 
             config.Routes.MapHttpRoute(
-                name: "Commands",
-                routeTemplate: "api/commands/{cmdName}",
-                defaults: new { controller = "commands", cmdName = RouteParameter.Optional }
+                name: "MetaApi",
+                routeTemplate: "api/commands/meta",
+                defaults: new {controller = "commands", action = "Meta" }
+                );
+
+            config.Routes.MapHttpRoute(
+                name: "CommandApi",
+                routeTemplate: "api/commands/{cmdName}/{action}",
+                defaults: new { controller = "commands", action = "Rest", cmdName = RouteParameter.Optional }
             );
         }
     }

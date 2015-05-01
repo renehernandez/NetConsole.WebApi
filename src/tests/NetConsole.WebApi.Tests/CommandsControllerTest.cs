@@ -13,6 +13,9 @@ using NetConsole.Core.Grammar;
 using NetConsole.Core.Interfaces;
 using NetConsole.Core.Managers;
 using NetConsole.WebApi.Controllers;
+using NetConsole.WebApi.Interfaces;
+using NetConsole.WebApi.Metadata;
+using NetConsole.WebApi.Repositories;
 using NUnit.Framework;
 using Rhino.Mocks;
 
@@ -23,30 +26,41 @@ namespace NetConsole.WebApi.Tests
     {
 
         private CommandsController _controller;
-        private ICommandFactory _stubFactory;
+        private ICommandFactory _stubCommandFactory;
         private CommandManager _stubManager;
+        private  ICommandMetadataFactory<CommandMetadata, ActionMeta> _stubMetadataFactory;
+        private CommandsRepository _repository;
 
         [SetUp]
         public void SetUp()
         {
-            _stubFactory = MockRepository.GenerateStub<ICommandFactory>();
-            _stubFactory.Expect(x => x.Contains("echo")).Return(true);
-            _stubFactory.Expect(x => x.GetInstance("echo")).Return(new EchoCommand());
-            _stubManager = MockRepository.GenerateMock<CommandManager>(_stubFactory);
-            _controller = new CommandsController(_stubManager);
+            _stubCommandFactory = MockRepository.GenerateStub<ICommandFactory>();
+            _stubCommandFactory.Stub(x => x.Contains("echo")).Return(true);
+            _stubCommandFactory.Stub(x => x.GetInstance("echo")).Return(new EchoCommand());
+            _stubCommandFactory.Stub(x => x.GetAll())
+                .Return(new List<ICommand> {new EchoCommand(), new PromptCommand()});
+
+            _stubMetadataFactory = MockRepository.GenerateStub<ICommandMetadataFactory<CommandMetadata, ActionMeta>>();
+            _stubMetadataFactory.Stub(x => x.RegisterInstanceMetadata(new EchoCommand())).IgnoreArguments();
+            _stubMetadataFactory.Stub(x => x.RegisterAllMetadata(null)).IgnoreArguments();
+
+            _stubManager = MockRepository.GenerateMock<CommandManager>(_stubCommandFactory);            
+            _repository = new CommandsRepository(_stubManager, _stubMetadataFactory);
+            _controller = new CommandsController(_repository);
         }
 
         [Test]
         public void Test_GetCommandThrowsHttpResponseException()
         {
-            Assert.Throws<HttpResponseException>(() => _controller.GetCommmand("hello"));
+            //Assert
+            Assert.Throws<HttpResponseException>(() => _controller.Get("hello"));
         }
 
         [Test]
         public void Test_PostActionStatusCode()
         {
             SetupControllerForTests(_controller);
-            var response = _controller.PostAction("echo:echoed Hello my dear");
+            var response = _controller.Perform("echo:echoed Hello my dear");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
@@ -55,7 +69,7 @@ namespace NetConsole.WebApi.Tests
         public void Test_PostActionContent()
         {
             SetupControllerForTests(_controller);
-            var response = _controller.PostAction("echo:echoed Hello my dear");
+            var response = _controller.Perform("echo:echoed Hello my dear");
 
             var content = response.Content as ObjectContent;
             var output = content.Value as ReturnInfo[];
