@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Routing;
 using NetConsole.WebApi.Registrations;
 using NetConsole.WebApi.Resolvers;
 using Ninject;
@@ -20,7 +22,15 @@ namespace NetConsole.WebApi
             config.Routes.MapHttpRoute(
                 name: "MetaApi",
                 routeTemplate: "api/commands/meta",
-                defaults: new {controller = "commands", action = "Meta" }
+                defaults: new {controller = "commands", action = "Meta" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get)}
+                );
+
+            config.Routes.MapHttpRoute(
+                name: "PerformApi",
+                routeTemplate: "api/commands/perform",
+                defaults: new { controller = "commands", action = "Perform" },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Post)}
                 );
 
             config.Routes.MapHttpRoute(

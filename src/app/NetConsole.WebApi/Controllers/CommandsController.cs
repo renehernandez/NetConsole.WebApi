@@ -44,7 +44,6 @@ namespace NetConsole.WebApi.Controllers
         }
 
         [HttpGet]
-        [ActionName("Meta")]
         public HttpResponseMessage Meta()
         {
             var meta = _repository.GetAllMetadata();

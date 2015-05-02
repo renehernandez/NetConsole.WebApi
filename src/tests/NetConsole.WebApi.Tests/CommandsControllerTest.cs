@@ -27,13 +27,17 @@ namespace NetConsole.WebApi.Tests
 
         private CommandsController _controller;
         private ICommandFactory _stubCommandFactory;
-        private CommandManager _stubManager;
-        private  ICommandMetadataFactory<CommandMetadata, ActionMeta> _stubMetadataFactory;
+        private ICommandManager _stubManager;
+        private ICommandMetadataFactory<CommandMetadata, ActionMeta> _stubMetadataFactory;
         private CommandsRepository _repository;
+        private HttpConfiguration _config;
+        private RouteMocker _routeMocker;
+        private HttpRequestMessage _request;
 
         [SetUp]
         public void SetUp()
         {
+            // Stubs
             _stubCommandFactory = MockRepository.GenerateStub<ICommandFactory>();
             _stubCommandFactory.Stub(x => x.Contains("echo")).Return(true);
             _stubCommandFactory.Stub(x => x.GetInstance("echo")).Return(new EchoCommand());
@@ -44,13 +48,23 @@ namespace NetConsole.WebApi.Tests
             _stubMetadataFactory.Stub(x => x.RegisterInstanceMetadata(new EchoCommand())).IgnoreArguments();
             _stubMetadataFactory.Stub(x => x.RegisterAllMetadata(null)).IgnoreArguments();
 
-            _stubManager = MockRepository.GenerateMock<CommandManager>(_stubCommandFactory);            
+            _stubManager = MockRepository.GenerateStub<ICommandManager>();
+            _stubManager.Stub(x => x.Factory).Return(_stubCommandFactory);
+            _stubManager.Stub(x => x.GetOutputFromString("echo Hello my dear")).Return(new []{ new ReturnInfo("Hello my dear", 0)});
             _repository = new CommandsRepository(_stubManager, _stubMetadataFactory);
             _controller = new CommandsController(_repository);
+
+            // Http Configuration
+            _config = new HttpConfiguration();
+            _config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+            
+            WebApiConfig.Register(_config);
         }
 
+        # region Actions Tests
+
         [Test]
-        public void Test_GetCommandThrowsHttpResponseException()
+        public void Test_GetThrowsHttpResponseException()
         {
             //Assert
             Assert.Throws<HttpResponseException>(() => _controller.Get("hello"));
@@ -59,41 +73,102 @@ namespace NetConsole.WebApi.Tests
         [Test]
         public void Test_PostActionStatusCode()
         {
-            SetupControllerForTests(_controller);
+            // Arrange
+            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
+            _routeMocker.SetUpController(_controller);
+
+            // Act
             var response = _controller.Perform("echo:echoed Hello my dear");
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Test]
         public void Test_PostActionContent()
         {
-            SetupControllerForTests(_controller);
-            var response = _controller.Perform("echo:echoed Hello my dear");
+            // Arrange
+            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
+            _routeMocker.SetUpController(_controller);
 
+            //Act
+            var response = _controller.Perform("echo Hello my dear");
             var content = response.Content as ObjectContent;
             var output = content.Value as ReturnInfo[];
 
+            // Assert
             Assert.AreEqual(1, output.Length);
             Assert.AreEqual("Hello my dear", output[0].Output);
         }
 
-        private static void SetupControllerForTests(ApiController controller)
+        # endregion
+
+        # region Endpoints Tests
+
+        [Test]
+        public void Test_MatchMetaUrl()
         {
-            var config = new HttpConfiguration();
-            var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands");
-            var route = config.Routes.MapHttpRoute(
-                name: "Commands",
-                routeTemplate: "api/commands/{cmdName}",
-                defaults: new { controller = "commands", cmdName = RouteParameter.Optional }
-                );
+            // Arrange
+            _request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/api/commands/meta");
+            _routeMocker = new RouteMocker(_config, _request);
 
-            var routeData = new HttpRouteData(route);
-
-            controller.ControllerContext = new HttpControllerContext(config, routeData, request);
-            controller.Request = request;
-            controller.Request.Properties[HttpPropertyKeys.HttpConfigurationKey] = config;
+            // Assert
+            Assert.AreEqual(typeof(CommandsController), _routeMocker.GetControllerType());
+            Assert.AreEqual(ReflectionHelper.GetMethodName((CommandsController c) => c.Meta()), 
+                _routeMocker.GetActionName());
         }
+
+        [Test]
+        public void Test_MatchPerformUrl()
+        {
+            // Arrange
+            _request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/perform");
+            _routeMocker = new RouteMocker(_config, _request);
+
+            // Assert
+            Assert.AreEqual(typeof(CommandsController), _routeMocker.GetControllerType());
+            Assert.AreEqual(ReflectionHelper.GetMethodName((CommandsController c) => c.Perform("")),
+                _routeMocker.GetActionName());
+        }
+
+        [Test]
+        public void Test_MatchCommandMetaUrl()
+        {
+            // Arrange
+            _request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/api/commands/prompt/meta");
+            _routeMocker = new RouteMocker(_config, _request);
+
+            // Assert
+            Assert.AreEqual(typeof(CommandsController), _routeMocker.GetControllerType());
+            Assert.AreEqual(ReflectionHelper.GetMethodName((CommandsController c) => c.Meta("prompt")),
+                _routeMocker.GetActionName());
+        }
+
+        [Test]
+        public void Test_MatchGetUrl()
+        {
+            // Arrange
+            _request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/api/commands");
+            _routeMocker = new RouteMocker(_config, _request);
+
+            // Assert
+            Assert.AreEqual(typeof(CommandsController), _routeMocker.GetControllerType());
+            Assert.AreEqual("Rest", _routeMocker.GetActionName());
+        }
+
+        [Test]
+        public void Test_MatchMetaCommandUrl()
+        {
+            // Arrange
+            _request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/api/commands/prompt");
+            _routeMocker = new RouteMocker(_config, _request);
+
+            // Assert
+            Assert.AreEqual(typeof(CommandsController), _routeMocker.GetControllerType());
+            Assert.AreEqual("Rest", _routeMocker.GetActionName());
+        }
+
+        # endregion
 
     }
 }
