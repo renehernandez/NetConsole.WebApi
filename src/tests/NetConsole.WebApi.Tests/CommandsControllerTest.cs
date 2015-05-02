@@ -26,10 +26,7 @@ namespace NetConsole.WebApi.Tests
     {
 
         private CommandsController _controller;
-        private ICommandFactory _stubCommandFactory;
-        private ICommandManager _stubManager;
-        private ICommandMetadataFactory<CommandMetadata, ActionMeta> _stubMetadataFactory;
-        private CommandsRepository _repository;
+        private IRepository<ICommand, ICommandMetadata<ActionMeta>, ReturnInfo> _repository;
         private HttpConfiguration _config;
         private RouteMocker _routeMocker;
         private HttpRequestMessage _request;
@@ -38,20 +35,8 @@ namespace NetConsole.WebApi.Tests
         public void SetUp()
         {
             // Stubs
-            _stubCommandFactory = MockRepository.GenerateStub<ICommandFactory>();
-            _stubCommandFactory.Stub(x => x.Contains("echo")).Return(true);
-            _stubCommandFactory.Stub(x => x.GetInstance("echo")).Return(new EchoCommand());
-            _stubCommandFactory.Stub(x => x.GetAll())
-                .Return(new List<ICommand> {new EchoCommand(), new PromptCommand()});
+            _repository = MockRepository.GenerateStub<IRepository<ICommand, ICommandMetadata<ActionMeta>, ReturnInfo>>();
 
-            _stubMetadataFactory = MockRepository.GenerateStub<ICommandMetadataFactory<CommandMetadata, ActionMeta>>();
-            _stubMetadataFactory.Stub(x => x.RegisterInstanceMetadata(new EchoCommand())).IgnoreArguments();
-            _stubMetadataFactory.Stub(x => x.RegisterAllMetadata(null)).IgnoreArguments();
-
-            _stubManager = MockRepository.GenerateStub<ICommandManager>();
-            _stubManager.Stub(x => x.Factory).Return(_stubCommandFactory);
-            _stubManager.Stub(x => x.GetOutputFromString("echo Hello my dear")).Return(new []{ new ReturnInfo("Hello my dear", 0)});
-            _repository = new CommandsRepository(_stubManager, _stubMetadataFactory);
             _controller = new CommandsController(_repository);
 
             // Http Configuration
@@ -71,28 +56,55 @@ namespace NetConsole.WebApi.Tests
         }
 
         [Test]
-        public void Test_PostActionStatusCode()
+        public void Test_MetaThrowsHttpResponseException()
+        {
+            // Assert
+            Assert.Throws<HttpResponseException>(() => _controller.Meta("flickr"));
+        }
+
+        [Test]
+        public void Test_PostActionStatusCodeOk()
         {
             // Arrange
+            string input = "prompt";
+            _repository.Stub(x => x.Perform(input, false)).Return(new[] { new ReturnInfo("$", 0) });
             _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
             _routeMocker.SetUpController(_controller);
 
             // Act
-            var response = _controller.Perform("echo:echoed Hello my dear");
+            var response = _controller.Perform(input);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Test]
+        public void Test_PostActionStatusCodeServerError()
+        {
+            // Arrange
+            string input = "prompt:what error";
+            _repository.Stub(x => x.Perform(input, false)).Return(new[] { new ReturnInfo("", 1) });
+            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
+            _routeMocker.SetUpController(_controller);
+
+            // Act
+            var response = _controller.Perform(input);
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+
+        [Test]
         public void Test_PostActionContent()
         {
             // Arrange
+            string input = "echo Hello my dear";
+            _repository.Stub(x => x.Perform(input, false)).Return(new[] { new ReturnInfo("Hello my dear", 0) });
             _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
             _routeMocker.SetUpController(_controller);
 
             //Act
-            var response = _controller.Perform("echo Hello my dear");
+            var response = _controller.Perform(input);
             var content = response.Content as ObjectContent;
             var output = content.Value as ReturnInfo[];
 

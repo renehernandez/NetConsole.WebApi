@@ -4,7 +4,7 @@ using NetConsole.Core.Grammar;
 
 namespace NetConsole.WebApi.Interfaces
 {
-    public interface IRepository<out T, out TMeta, TReturn> where TMeta : IMetadata
+    public interface IRepository<out T, out TMeta, out TReturn> where TMeta : IMetadata
     {
 
         IEnumerable<T> GetAll();

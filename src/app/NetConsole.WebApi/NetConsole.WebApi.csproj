@@ -61,6 +61,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\CommandsController.cs" />
+    <Compile Include="Exceptions\CommandMetadataNotFoundException.cs" />
+    <Compile Include="Exceptions\DuplicatedCommandMetadataException.cs" />
+    <Compile Include="Exceptions\NetConsoleWebApiException.cs" />
+    <Compile Include="Exceptions\NullCommandException.cs" />
     <Compile Include="Extensions\WebApiCommandExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -72,7 +76,7 @@
     <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Metadata\ActionMeta.cs" />
     <Compile Include="Metadata\CommandMetadata.cs" />
-    <Compile Include="Metadata\CommandMetadataFactory.cs" />
+    <Compile Include="Factories\CommandMetadataFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registrations\NinjectRegistration.cs" />
     <Compile Include="Repositories\CommandsRepository.cs" />

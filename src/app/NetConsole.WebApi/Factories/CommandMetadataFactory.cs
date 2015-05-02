@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using NetConsole.Core.Interfaces;
+using NetConsole.WebApi.Exceptions;
 using NetConsole.WebApi.Interfaces;
+using NetConsole.WebApi.Metadata;
 
-namespace NetConsole.WebApi.Metadata
+namespace NetConsole.WebApi.Factories
 {
     public class CommandMetadataFactory : ICommandMetadataFactory<CommandMetadata, ActionMeta>
     {
@@ -25,6 +25,11 @@ namespace NetConsole.WebApi.Metadata
 
         public void RegisterInstanceMetadata(ICommand command)
         {
+            if(command == null)
+                throw new NullCommandException();
+            if(Contains(command.Name))
+                throw new DuplicatedCommandMetadataException(command.Name);
+
             _cache.Add(command.Name, new CommandMetadata(command));
         }
 
@@ -37,7 +42,7 @@ namespace NetConsole.WebApi.Metadata
         public CommandMetadata GetInstanceMetadata(string name)
         {
             if(!Contains(name))
-                throw new Exception("No metadata information for this command");
+                throw new CommandMetadataNotFoundException(name);
 
             return _cache[name];
         }

@@ -55,6 +55,9 @@ namespace NetConsole.WebApi.Controllers
         [HttpGet]
         public HttpResponseMessage Meta(string cmdName)
         {
+            if(!_repository.Contains(cmdName))
+                throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound));
+
             var meta = _repository.GetInstanceMetadata(cmdName);
 
             var response = Request.CreateResponse(HttpStatusCode.OK, meta);
@@ -66,7 +69,9 @@ namespace NetConsole.WebApi.Controllers
         {
             var output = _repository.Perform(commandAction, false);
 
-            var response = Request.CreateResponse(HttpStatusCode.OK, output);
+            var status = output.Any() && output.Last().Status == 0 ? HttpStatusCode.OK : HttpStatusCode.InternalServerError;
+ 
+            var response = Request.CreateResponse(status, output);
             return response;
         }
 

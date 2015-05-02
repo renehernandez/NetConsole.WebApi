@@ -6,6 +6,7 @@ using NetConsole.Core.Factories;
 using NetConsole.Core.Grammar;
 using NetConsole.Core.Interfaces;
 using NetConsole.Core.Managers;
+using NetConsole.WebApi.Factories;
 using NetConsole.WebApi.Interfaces;
 using NetConsole.WebApi.Metadata;
 using NetConsole.WebApi.Repositories;
