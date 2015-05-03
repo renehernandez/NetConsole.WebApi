@@ -24,7 +24,7 @@ NUGET
       Microsoft.Web.Infrastructure (>= 1.0.0.0)
     Microsoft.Net.Http (2.0.20710.0) - framework: >= net40
     Microsoft.Web.Infrastructure (1.0.0.0) - framework: >= net40
-    NetConsole.Core (0.2.2)
+    NetConsole.Core (0.3.0)
       Antlr4
     Newtonsoft.Json (4.5.6) - framework: >= net40
     Ninject (3.2.2.0)
