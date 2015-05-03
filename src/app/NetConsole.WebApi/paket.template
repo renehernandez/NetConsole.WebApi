@@ -1,0 +1,13 @@
+type project
+owners
+    renehernandez
+authors
+    renehernandez
+projectUrl
+    http://github.com/renehernandez/NetConsole.WebApi
+licenseUrl
+    http://github.com/renehernandez/NetConsole.WebApi/blob/master/LICENSE.md
+requireLicenseAcceptance
+    false
+copyright
+    Copyright 2015
