@@ -3,6 +3,7 @@
 #r @"packages/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.ReleaseNotesHelper
+open Fake.AssemblyInfoFile
 open Fake.Git
 
 // Properties
@@ -19,14 +20,47 @@ let docDir = "./docs/"
 let appReferences = !! "src/app/**/*.csproj"
 let testReferences = !! "src/tests/**/*.csproj"
 
-// Project Properties
+// Information about the project are used
+//  - for version and project name in generated AssemblyInfo file
+//  - by the generated NuGet package
 
-let projectName = ""
+// The name of the project
+// (used by attributes in AssemblyInfo, name of a NuGet package)
+let project = "NetConsole.WebApi"
+
+// Short summary of the project
+// (used as description in AssemblyInfo and as a short summary for NuGet package)
+let summary = "NetConsole.WebApi is a package that it provides a way to access commands by using a sort of RPC-like API interaction."
+
+// Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
-let version = release.NugetVersion
 
 Target "Clean" (fun _ ->
         CleanDirs [buildDir; testDir; binDir; docDir]
+)
+
+// Generate assembly info files with the right version & up-to-date information
+Target "AssemblyInfo" (fun _ ->
+    let getAssemblyInfoAttributes projectName =
+        [ Attribute.Title (projectName)
+          Attribute.Product project
+          Attribute.Description summary
+          Attribute.Version release.AssemblyVersion
+          Attribute.FileVersion release.AssemblyVersion ]
+
+    let getProjectDetails projectPath =
+        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
+        ( projectPath,
+          projectName,
+          System.IO.Path.GetDirectoryName(projectPath),
+          (getAssemblyInfoAttributes projectName)
+        )
+
+    !! "src/**/*.??proj"
+    |> Seq.map getProjectDetails
+    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
+            CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
+        )
 )
 
 Target "BuildApp" (fun _ ->
@@ -63,7 +97,7 @@ Target "BuildPackage" (fun _ ->
 Target "BuildZip" (fun _ ->
         !! (buildDir + "/**/*.*")
             -- "*.zip"
-            |> Zip buildDir (binDir + projectName + "." +  version + ".zip" )
+            |> Zip buildDir (binDir + project + "." +  release.NugetVersion + ".zip" )
 )
 
 Target "ReleasePackage" (fun _ ->
@@ -83,6 +117,7 @@ Target "Develop" (fun _ ->
 )
 
 "Clean"
+    ==> "AssemblyInfo"
     ==> "BuildApp"
     ==> "BuildTest"
     ==> "Test"
@@ -91,6 +126,7 @@ Target "Develop" (fun _ ->
     ==> "Develop"
 
 "Clean"
+    ==> "AssemblyInfo"
     ==> "BuildApp"
     ==> "BuildTest"
     ==> "Test"
