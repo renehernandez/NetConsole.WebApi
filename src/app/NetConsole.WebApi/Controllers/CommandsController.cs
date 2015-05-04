@@ -22,7 +22,7 @@ namespace NetConsole.WebApi.Controllers
         }
 
         [HttpGet]
-        [ActionName("Rest")]
+        [ActionName("Commands")]
         public HttpResponseMessage Get()
         {
             var commands = _repository.GetAll();
@@ -32,7 +32,6 @@ namespace NetConsole.WebApi.Controllers
         }
 
         [HttpGet]
-        [ActionName("Rest")]
         public HttpResponseMessage Get(string cmdName)
         {
             if (!_repository.Contains(cmdName))
