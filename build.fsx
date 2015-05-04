@@ -126,6 +126,7 @@ Target "Develop" (fun _ ->
     ==> "Develop"
 
 "Clean"
+    ==> "AssemblyInfo"
     ==> "BuildApp"
     ==> "BuildTest"
     ==> "Test"
