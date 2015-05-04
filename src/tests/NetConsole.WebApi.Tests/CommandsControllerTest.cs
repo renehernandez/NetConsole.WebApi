@@ -68,7 +68,7 @@ namespace NetConsole.WebApi.Tests
             // Arrange
             string input = "prompt";
             _repository.Stub(x => x.Perform(input, false)).Return(new[] { new ReturnInfo("$", 0) });
-            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
+            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/perform"));
             _routeMocker.SetUpController(_controller);
 
             // Act
@@ -84,7 +84,7 @@ namespace NetConsole.WebApi.Tests
             // Arrange
             string input = "prompt:what error";
             _repository.Stub(x => x.Perform(input, false)).Return(new[] { new ReturnInfo("", 1) });
-            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
+            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/perform"));
             _routeMocker.SetUpController(_controller);
 
             // Act
@@ -100,7 +100,7 @@ namespace NetConsole.WebApi.Tests
             // Arrange
             string input = "echo Hello my dear";
             _repository.Stub(x => x.Perform(input, false)).Return(new[] { new ReturnInfo("Hello my dear", 0) });
-            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/echo/perform"));
+            _routeMocker = new RouteMocker(_config, new HttpRequestMessage(HttpMethod.Post, "http://localhost/api/commands/perform"));
             _routeMocker.SetUpController(_controller);
 
             //Act
@@ -165,7 +165,7 @@ namespace NetConsole.WebApi.Tests
 
             // Assert
             Assert.AreEqual(typeof(CommandsController), _routeMocker.GetControllerType());
-            Assert.AreEqual("Rest", _routeMocker.GetActionName());
+            Assert.AreEqual("Commands", _routeMocker.GetActionName());
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace NetConsole.WebApi.Tests
 
             // Assert
             Assert.AreEqual(typeof(CommandsController), _routeMocker.GetControllerType());
-            Assert.AreEqual("Rest", _routeMocker.GetActionName());
+            Assert.AreEqual("Get", _routeMocker.GetActionName());
         }
 
         # endregion
